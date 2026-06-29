@@ -3,186 +3,168 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>☕ Cafe Vibe POS</title>
+  <title>🚀 Utak-Vibe Cloud POS</title>
   <script src="https://tailwindcss.com"></script>
+  <link href="https://googleapis.com" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeIn 0.2s ease-out forwards; }
+  </style>
 </head>
-<body class="bg-stone-100 text-stone-800 font-sans h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
 
-  <!-- Header -->
-  <header class="bg-stone-900 text-stone-100 p-4 shadow-md flex justify-between items-center">
-    <h1 class="text-xl font-bold tracking-wide">☕ VIBE CAFE POS</h1>
-    <div id="live-clock" class="text-sm font-mono opacity-80"></div>
+  <!-- Main Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center z-10 shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="bg-indigo-600 text-white p-2 rounded-xl font-bold tracking-tight shadow-md shadow-indigo-100">U</div>
+      <div>
+        <h1 class="text-md font-bold tracking-tight text-slate-900">VIBE-UTAK <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium ml-1">Cloud Hub</span></h1>
+        <p class="text-xs text-slate-400 font-medium">Branch: Cafe Main • Staff: Barista Vibe</p>
+      </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="flex bg-slate-100 p-1 rounded-xl">
+      <button onclick="switchView('register')" id="tab-register" class="px-4 py-2 text-xs font-semibold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Cashier Terminal</button>
+      <button onclick="switchView('inventory')" id="tab-inventory" class="px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-900 transition-all">Stocks & Recipes</button>
+      <button onclick="switchView('analytics')" id="tab-analytics" class="px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-900 transition-all">Sales Reports</button>
+    </div>
+
+    <div class="text-right">
+      <div id="live-clock" class="text-xs font-mono font-bold text-slate-700">00:00:00</div>
+      <span class="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full mt-0.5">● System Cloud Syncing</span>
+    </div>
   </header>
 
-  <!-- Main POS Workspace -->
-  <main class="flex-1 flex overflow-hidden">
+  <!-- WORKSPACE CONTENT CONTAINER -->
+  <div class="flex-1 flex overflow-hidden">
     
-    <!-- Left Side: Menu Grid -->
-    <section class="w-2/3 p-6 overflow-y-auto">
-      <div class="mb-6 flex gap-2">
-        <button onclick="filterMenu('all')" class="px-4 py-2 rounded-full bg-stone-900 text-white text-sm font-medium">All</button>
-        <button onclick="filterMenu('coffee')" class="px-4 py-2 rounded-full bg-white border border-stone-300 text-sm font-medium hover:bg-stone-200">Coffee</button>
-        <button onclick="filterMenu('tea')" class="px-4 py-2 rounded-full bg-white border border-stone-300 text-sm font-medium hover:bg-stone-200">Tea & Matcha</button>
-        <button onclick="filterMenu('pastry')" class="px-4 py-2 rounded-full bg-white border border-stone-300 text-sm font-medium hover:bg-stone-200">Pastries</button>
-      </div>
+    <!-- VIEW 1: CASHIER REGISTER TERMINAL -->
+    <main id="view-register" class="w-full flex overflow-hidden">
+      <!-- Left Side: Menu Selection Grid -->
+      <section class="w-2/3 p-6 overflow-y-auto flex flex-col">
+        <div class="mb-5 flex gap-2 overflow-x-auto pb-1">
+          <button onclick="filterMenu('all')" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold shadow-sm">All Items</button>
+          <button onclick="filterMenu('coffee')" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50">Espresso Bar</button>
+          <button onclick="filterMenu('tea')" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50">Matcha & Tea</button>
+          <button onclick="filterMenu('pastry')" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50">Pastry Display</button>
+        </div>
 
-      <div id="menu-grid" class="grid grid-cols-3 gap-4">
-        <!-- JS injects menu items here -->
-      </div>
-    </section>
+        <div id="menu-grid" class="grid grid-cols-3 gap-4">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </section>
 
-    <!-- Right Side: Current Ticket / Cart -->
-    <section class="w-1/3 bg-white border-l border-stone-200 flex flex-col justify-between shadow-xl">
-      <!-- Ticket Header -->
-      <div class="p-4 border-b border-stone-100">
-        <h2 class="font-bold text-lg flex justify-between">
-          <span>Current Ticket</span>
-          <span id="ticket-number" class="text-stone-400 font-mono text-sm self-center">#0001</span>
-        </h2>
-      </div>
+      <!-- Right Side: Interactive Active Ticket System -->
+      <section class="w-1/3 bg-white border-l border-slate-200 flex flex-col justify-between shadow-lg">
+        <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+          <h2 class="font-bold text-slate-900 text-sm">Active Cart</h2>
+          <span id="ticket-number" class="text-xs font-mono font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">ORDER #1001</span>
+        </div>
 
-      <!-- Ticket Items List -->
-      <div id="ticket-items" class="flex-1 p-4 overflow-y-auto space-y-3">
-        <!-- JS injects cart items here -->
-      </div>
+        <!-- Scrollable Ticket List -->
+        <div id="ticket-items" class="flex-1 p-4 overflow-y-auto space-y-2.5">
+          <!-- Populated by items -->
+        </div>
 
-      <!-- Financial Totals & Checkout -->
-      <div class="p-4 border-t border-stone-200 bg-stone-50 space-y-4">
-        <div class="space-y-1.5 text-sm font-medium text-stone-600">
-          <div class="flex justify-between">
-            <span>Subtotal</span>
-            <span id="subtotal">$0.00</span>
+        <!-- Calculation Matrix & Integrated Payment Mock Terminal -->
+        <div class="p-4 border-t border-slate-200 bg-slate-50/50 space-y-4">
+          <div class="space-y-1.5 text-xs font-medium text-slate-500">
+            <div class="flex justify-between"><span>Subtotal</span><span id="subtotal">₱0.00</span></div>
+            <div class="flex justify-between"><span>VAT Included (12%)</span><span id="tax">₱0.00</span></div>
+            <div class="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-100">
+              <span>Grand Total</span><span id="total" class="text-indigo-600 text-base font-extrabold">₱0.00</span>
+            </div>
           </div>
-          <div class="flex justify-between">
-            <span>Tax (12%)</span>
-            <span id="tax">$0.00</span>
+
+          <!-- Utak-Inspired Payment Router -->
+          <div class="space-y-2">
+            <label class="text-[11px] font-bold tracking-wider text-slate-400 block uppercase">Select Payment Route</label>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button onclick="setPaymentMethod('Cash')" id="btn-pay-cash" class="py-2.5 border-2 border-indigo-600 bg-indigo-50/40 text-indigo-700 font-bold text-xs rounded-xl transition-all">💵 Cash</button>
+              <button onclick="setPaymentMethod('GCash')" id="btn-pay-gcash" class="py-2.5 border border-slate-200 bg-white text-slate-600 font-bold text-xs rounded-xl transition-all">🔵 GCash</button>
+              <button onclick="setPaymentMethod('Maya')" id="btn-pay-maya" class="py-2.5 border border-slate-200 bg-white text-slate-600 font-bold text-xs rounded-xl transition-all">🟢 Maya</button>
+            </div>
           </div>
-          <div class="flex justify-between text-base font-bold text-stone-900 pt-1 border-t border-stone-200">
-            <span>Total</span>
-            <span id="total">$0.00</span>
+
+          <div class="grid grid-cols-4 gap-2">
+            <button onclick="clearTicket()" class="py-3 bg-slate-100 text-slate-500 text-xs font-bold rounded-xl hover:bg-slate-200 transition-colors">Void</button>
+            <button onclick="processCheckout()" class="col-span-3 py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-100 transition-all flex items-center justify-center gap-1.5">
+              <span>Complete Sync Transaction</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- VIEW 2: BACK-OFFICE INVENTORY CONTROL SYSTEM -->
+    <main id="view-inventory" class="w-full p-6 overflow-y-auto hidden animate-in">
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Raw Ingredient Stocks</h2>
+            <p class="text-xs text-slate-400">Ingredient levels update instantly as baristas complete customer orders.</p>
+          </div>
+          <button onclick="restockIngredients()" class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 transition-colors">⚡ Emergency Restock All</button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-200">
+                <th class="p-4">Ingredient Asset</th>
+                <th class="p-4">Current Warehouse Stock</th>
+                <th class="p-4">Measurement Unit</th>
+                <th class="p-4">Status Alert</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-table-body" class="divide-y divide-slate-100 font-medium text-slate-700">
+              <!-- Rendered via loop -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- VIEW 3: UTILITY METRICS & SALES ANALYTICS -->
+    <main id="view-analytics" class="w-full p-6 overflow-y-auto hidden animate-in">
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Real-Time Revenue Audit</h2>
+          <p class="text-xs text-slate-400">Live operational calculations mimicking cloud tracking.</p>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-400 font-semibold block mb-1">Gross Sales Today</span>
+            <div id="kpi-sales" class="text-2xl font-extrabold text-slate-900">₱0.00</div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-400 font-semibold block mb-1">Completed Tickets</span>
+            <div id="kpi-orders" class="text-2xl font-extrabold text-indigo-600">0</div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-400 font-semibold block mb-1">Platform Tax Settled</span>
+            <div id="kpi-tax" class="text-2xl font-extrabold text-slate-700">₱0.00</div>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="clearTicket()" class="py-3 bg-stone-200 text-stone-700 rounded-xl font-medium hover:bg-stone-300 transition-colors">Void</button>
-          <button onclick="checkout()" class="py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 shadow-md transition-all">Pay Cash</button>
+        <!-- Historical Register Ledger Logs -->
+        <div class="space-y-2">
+          <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Sync Transaction Ledger History</h3>
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div id="ledger-entries" class="divide-y divide-slate-100 text-xs max-h-64 overflow-y-auto">
+              <div class="p-4 text-center text-slate-400 italic">No sync entries found for this operational cycle.</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
-  </main>
+    </main>
+
+  </div>
 
   <script>
-    // App State & Menu Data
-    const MENU = [
-      { id: 1, name: 'Espresso', price: 3.50, cat: 'coffee', color: 'bg-amber-100 border-amber-300' },
-      { id: 2, name: 'Americano', price: 4.00, cat: 'coffee', color: 'bg-amber-100 border-amber-300' },
-      { id: 3, name: 'Latte', price: 4.75, cat: 'coffee', color: 'bg-amber-100 border-amber-300' },
-      { id: 4, name: 'Flat White', price: 4.50, cat: 'coffee', color: 'bg-amber-100 border-amber-300' },
-      { id: 5, name: 'Matcha Latte', price: 5.20, cat: 'tea', color: 'bg-emerald-50 border-emerald-200' },
-      { id: 6, name: 'Iced Peach Tea', price: 4.25, cat: 'tea', color: 'bg-emerald-50 border-emerald-200' },
-      { id: 7, name: 'Butter Croissant', price: 3.75, cat: 'pastry', color: 'bg-orange-50 border-orange-200' },
-      { id: 8, name: 'Almond Croissant', price: 4.50, cat: 'pastry', color: 'bg-orange-50 border-orange-200' },
-      { id: 9, name: 'Chocolate Brownie', price: 3.00, cat: 'pastry', color: 'bg-orange-50 border-orange-200' }
-    ];
-
-    let ticket = [];
-    let orderCounter = 1;
-
-    // Render Menu Items
-    function renderMenu(items) {
-      const grid = document.getElementById('menu-grid');
-      grid.innerHTML = items.map(item => `
-        <button onclick="addToTicket(${item.id})" class="${item.color} border p-5 rounded-2xl text-left flex flex-col justify-between h-28 shadow-sm hover:shadow-md active:scale-95 transition-all">
-          <span class="font-bold text-stone-900 block leading-tight">${item.name}</span>
-          <span class="font-mono text-sm font-semibold text-stone-600">$${item.price.toFixed(2)}</span>
-        </button>
-      `).join('');
-    }
-
-    // Filter Menu Tabs
-    function filterMenu(category) {
-      const filtered = category === 'all' ? MENU : MENU.filter(i => i.cat === category);
-      renderMenu(filtered);
-    }
-
-    // Add Item to Bill
-    function addToTicket(id) {
-      const item = MENU.find(i => i.id === id);
-      const existing = ticket.find(i => i.id === id);
-
-      if (existing) {
-        existing.qty++;
-      } else {
-        ticket.push({ ...item, qty: 1 });
-      }
-      updatePOS();
-    }
-
-    // Remove or Decrement Item
-    function removeFromTicket(id) {
-      const existing = ticket.find(i => i.id === id);
-      if (existing.qty > 1) {
-        existing.qty--;
-      } else {
-        ticket = ticket.filter(i => i.id !== id);
-      }
-      updatePOS();
-    }
-
-    // Calculate Financials & Refresh UI
-    function updatePOS() {
-      // Render Current Ticket Items
-      const list = document.getElementById('ticket-items');
-      if (ticket.length === 0) {
-        list.innerHTML = `<div class="h-full flex items-center justify-center text-stone-400 text-sm italic">Ticket is empty</div>`;
-      } else {
-        list.innerHTML = ticket.map(item => `
-          <div class="flex justify-between items-center bg-stone-50 p-2.5 rounded-xl border border-stone-200 animate-fadeIn">
-            <div>
-              <div class="font-bold text-sm text-stone-900">${item.name}</div>
-              <div class="text-xs text-stone-500 font-mono">$${item.price.toFixed(2)} x ${item.qty}</div>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="font-mono font-bold text-sm text-stone-900">$${(item.price * item.qty).toFixed(2)}</span>
-              <button onclick="removeFromTicket(${item.id})" class="w-6 h-6 rounded-full bg-stone-200 text-stone-600 text-xs font-bold flex items-center justify-center hover:bg-red-100 hover:text-red-600 transition-colors">&times;</button>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      // Calculations
-      const sub = ticket.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      const taxAmount = sub * 0.12;
-      const totalAmount = sub + taxAmount;
-
-      // Update DOM Text
-      document.getElementById('subtotal').innerText = `$${sub.toFixed(2)}`;
-      document.getElementById('tax').innerText = `$${taxAmount.toFixed(2)}`;
-      document.getElementById('total').innerText = `$${totalAmount.toFixed(2)}`;
-    }
-
-    function clearTicket() {
-      ticket = [];
-      updatePOS();
-    }
-
-    function checkout() {
-      if (ticket.length === 0) return alert('Cannot process empty ticket.');
-      
-      alert(`🎉 Sale Successful!\nOrder #${String(orderCounter).padStart(4, '0')} has been logged.`);
-      orderCounter++;
-      document.getElementById('ticket-number').innerText = `#${String(orderCounter).padStart(4, '0')}`;
-      clearTicket();
-    }
-
-    // Set Live Clock
-    setInterval(() => {
-      document.getElementById('live-clock').innerText = new Date().toLocaleTimeString();
-    }, 1000);
-
-    // Initial Setup Run
-    renderMenu(MENU);
-    updatePOS();
-  </script>
-</body>
-</html>
+    // DATA MODEL ARCHITECTURE
+    const INVENTORY = {
